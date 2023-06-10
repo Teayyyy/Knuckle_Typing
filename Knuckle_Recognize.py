@@ -1,3 +1,5 @@
+import numpy as np
+
 from Model_and_DataLoader import *
 import matplotlib.pyplot as plt
 import datetime
@@ -14,7 +16,8 @@ def main():
     # load data
     datas, labels = Data_Loader.load_csv()
     labels = tf.one_hot(labels, 12)
-    print("label shape: ", labels.shape)
+    print("label shape: ", labels.shape)  # (n, 1, 12)
+    print("data shape: ", datas.shape)    # (n, 42)
     datas = datas[:, :, np.newaxis]
     # reshape datas
     datas = tf.transpose(datas, perm=[0, 2, 1])
@@ -25,7 +28,8 @@ def main():
     train_ds = tf.data.Dataset.from_tensor_slices((train_data, train_labels)).batch(200)
     test_ds = tf.data.Dataset.from_tensor_slices((test_data, test_labels)).batch(200)
 
-    optimizer = tf.keras.optimizers.Adam()
+    # optimizer = tf.keras.optimizers.Adam()
+    optimizer = tf.keras.optimizers.Nadam()
     loss_object = tf.keras.losses.CategoricalCrossentropy()
 
     train_loss = tf.keras.metrics.Mean(name='train_loss')

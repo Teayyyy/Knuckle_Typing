@@ -44,7 +44,10 @@ class Data_Loader:
     # Verified
     def load_csv():
         print("Loading data from csv...")
-        data_and_label = pd.read_csv('Assets/all_hands_with_landmark.csv')
+        # data_and_label = pd.read_csv('Assets/all_hands_with_landmark1.csv')
+        # use normalized data
+        data_and_label = pd.read_csv('Assets/norm_all_hands_with_landmark_normalized.csv')
+        print("Length of data: ", len(data_and_label))
         print("Converting landmarks...")  # from str to literal eval: list
         data = data_and_label['landmarks'].apply(ast.literal_eval)
         label = data_and_label['label'].to_numpy(dtype=np.uint8)
@@ -60,12 +63,19 @@ class Data_Loader:
         data = new_data
 
         print("Shuffling data...", end="")
-        combined = np.column_stack((data, label))
+        combined = np.column_stack([data, label])
         np.random.shuffle(combined)
         print("Done!")
         # split
         shuffled_data = combined[:, :-1]
         shuffled_label = combined[:, -1:]
+
+        # squeeze list()
+        # shuffled_data = [data[0] for data in shuffled_data]
+        # temp = []
+        # for data in shuffled_data:
+        #     temp.append(data[0])
+        # shuffled_data = np.array(temp)
 
         shuffled_data = shuffled_data.squeeze()
         print("shape: ", shuffled_data.shape)
@@ -74,3 +84,32 @@ class Data_Loader:
         print("total data: ", len(shuffled_data))
         print("total label: ", len(shuffled_label))
         return shuffled_data, shuffled_label
+
+
+    """
+    To normalize the landmark in same 'direction' (actually I don't know which direction XD)
+        set first point as origin point in default
+    """
+    @staticmethod
+    def normalize_landmark_direction(landmarks):
+        # 选择参考点的索引（这里假设参考点是第一个关键点）
+        landmarks = np.array(landmarks)
+        reference_point_idx = 0
+
+        # 获取参考点的坐标
+        reference_point = landmarks[reference_point_idx]
+
+        # 计算方向向量
+        direction_vectors = landmarks - reference_point
+
+        # 计算方向向量的长度
+        direction_lengths = np.linalg.norm(direction_vectors, axis=1)
+
+        # 规范化方向向量
+        normalized_directions = direction_vectors / direction_lengths[:, np.newaxis]
+
+        norm_list = normalized_directions.tolist()
+        norm_list[0] = [0, 0]
+
+        # 返回规范化后的landmark
+        return norm_list
