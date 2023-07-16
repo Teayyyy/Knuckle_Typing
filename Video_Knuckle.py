@@ -6,6 +6,7 @@ from Model_and_DataLoader import Data_Loader
 
 """
 RUN this to see the result of the model
+* tensorflow version： 2.12.0, both on macOS and Ubuntu
 """
 
 # load model from Training_Model1_23_6_10
